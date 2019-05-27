@@ -3,7 +3,7 @@ import { RouteComponentProps } from "react-router-dom";
 import PhoneLoginPresenter from "./PhoneLoginPresenter";
 import {toast} from "react-toastify";
 import { PHONE_SIGN_IN } from "./PhoneQueries";
-import { Mutation, } from "react-apollo";
+import { Mutation, MutationFn } from "react-apollo";
 import {startPhoneVerification, startPhoneVerificationVariables} from "../../types/api";
 
 
@@ -21,6 +21,7 @@ class PhoneLoginContainer extends React.Component<
   RouteComponentProps<any>,
   IState
 > {
+  public phoneMutation: MutationFn;
   public state = {
     countryCode: "+82",
     phoneNumber: ""
@@ -53,24 +54,14 @@ class PhoneLoginContainer extends React.Component<
           }
         }}
       >
-      {(mutation, { loading }) => {
-        const onSubmit: React.FormEventHandler<HTMLFormElement> = event => {
-        event.preventDefault();
-        const phone = `${countryCode}${phoneNumber}`;
-        const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(phone);
-        
-        if(isValid){
-          mutation();
-        } else {
-          toast.error("Please write a valid phone number");
-        }
-        };  
+      {(phoneMutation, { loading }) => {
+        this.phoneMutation = phoneMutation;
         return (
           <PhoneLoginPresenter
             countryCode={countryCode}
             phoneNumber={phoneNumber}
             onInputChange={this.onInputChange}
-            onSubmit={onSubmit}
+            onSubmit={this.onSubmit}
             loading={loading}
           />
         );
@@ -90,6 +81,17 @@ class PhoneLoginContainer extends React.Component<
     } as any);
   };
   
+  public onSubmit: React.FormEventHandler<HTMLFormElement> = event => {
+    event.preventDefault();
+    const { countryCode, phoneNumber } = this.state;
+    const phone = `${countryCode}${phoneNumber}`;
+    const isValid = /^\+[1-9]{1}[0-9]{7,11}$/.test(phone);
+    if (isValid) {
+      this.phoneMutation();
+    } else {
+      toast.error("Please write a valid phone number");
+    }
+  };
     
 }
 
