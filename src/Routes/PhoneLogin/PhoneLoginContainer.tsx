@@ -50,8 +50,7 @@ class PhoneLoginContainer extends React.Component<
       console.log(`${countryCode}${phoneNumber}`);
       return;
     } else {
-      console.log(`${countryCode}${phoneNumber}`);
-      toast.error("Please write a valid phone number");
+      toast.error("Please write a valid phone number "+countryCode+phoneNumber);
     }
     
   };
