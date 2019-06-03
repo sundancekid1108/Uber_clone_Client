@@ -67,7 +67,7 @@ const SocialLink = styled.span`
 
 interface IProps extends RouteComponentProps<any> {}
 
-const OutHomePresenter: React.SFC<IProps> = () => (
+const LoginPresenter: React.SFC<IProps> = () => (
   <Container>
     <Helmet>
       <title>Login | Newber</title>
@@ -95,4 +95,4 @@ const OutHomePresenter: React.SFC<IProps> = () => (
   </Container>
 );
 
-export default OutHomePresenter;
+export default LoginPresenter;
