@@ -6,12 +6,16 @@ import EditAccountPresenter from "./EditAccountPresenter";
 import { UPDATE_PROFILE } from "./EditAccountQueries.queries";
 import {USER_PROFILE} from "../../sharedQueries.queries";
 import { toast } from "react-toastify";
+import axios from "axios";
+
+
 
 interface IState {
     firstName: string;
     lastName: string;
     email: string;
     profilePhoto: string;
+    uploading: boolean;
 }
 
 interface IProps extends RouteComponentProps<any> {}
@@ -28,13 +32,14 @@ class EditAccountContainer extends React.Component<IProps, IState>{
         email: "",
         firstName: "",
         lastName: "",
-        profilePhoto: ""
+        profilePhoto: "",
+        uploading: false
     };
 
     public render(){
-        const { email, firstName, lastName, profilePhoto } = this.state;
+        const { email, firstName, lastName, profilePhoto, uploading } = this.state;
         return(
-          <ProfileQuery query={USER_PROFILE} onCompleted={this.updateFields}>
+          <ProfileQuery query={USER_PROFILE} onCompleted={this.updateFields} fetchPolicy={"cache-and-network"}>
           {() => (
             <UpdateProfileMutation
               mutation={UPDATE_PROFILE}
@@ -63,6 +68,7 @@ class EditAccountContainer extends React.Component<IProps, IState>{
                   onInputChange={this.onInputChange}
                   loading={loading}
                   onSubmit={updateProfileFn}
+                  uploading={uploading}
                 />
               )}
             </UpdateProfileMutation>
@@ -71,19 +77,31 @@ class EditAccountContainer extends React.Component<IProps, IState>{
         );
     }
     
-    public onInputChange: React.ChangeEventHandler<HTMLInputElement> = event => {
+    public onInputChange: React.ChangeEventHandler<HTMLInputElement> = async event => {
       const {
-        target: { name, value }
+        target: { name, value, files }
       } = event;
-  
+      if (files) {
+        this.setState({
+          uploading: true
+        });
+        const formData = new FormData();
+        formData.append("file", files[0]);
+        formData.append("api_key", "942484765544649");
+        formData.append("upload_preset", "ml_default");
+        formData.append("timestamp", String(Date.now() / 1000));
+        const request = await axios.post(
+          "https://api.cloudinary.com/v1_1/yangga12345/image/upload", formData
+        );
+        console.log(request);
+      }
       this.setState({
         [name]: value
       } as any);
     };
 
     public updateFields = (data: {} | userProfile) => {
-      console.log(data);
-      if("GetMyProfile" in data) {
+      if ("GetMyProfile" in data) {
         const {
           GetMyProfile: { user }
         } = data;
@@ -93,7 +111,8 @@ class EditAccountContainer extends React.Component<IProps, IState>{
             email,
             firstName,
             lastName,
-            profilePhoto
+            profilePhoto,
+            uploaded: profilePhoto !== null
           } as any);
         }
       }
