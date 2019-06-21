@@ -1,11 +1,13 @@
 import React from "react";
 import { Query } from "react-apollo";
 import ReactDOM from "react-dom";
-import { RouteComponentProps } from "react-router";
+import { RouteComponentProps } from "react-router-dom";
 import { geoCode } from "../../mapHelpers";
 import { USER_PROFILE } from "../../sharedQueries.queries";
 import { userProfile } from "../../types/api";
 import HomePresenter from "./HomePresenter";
+import { toast } from "react-toastify";
+
 
 interface IState {
   isMenuOpen: boolean;
@@ -14,6 +16,9 @@ interface IState {
   toLng: number;
   lat: number;
   lng: number;
+  distance: string;
+  duration?: string;
+  price?: string;
 }
 
 interface IProps extends RouteComponentProps<any> {
@@ -27,13 +32,18 @@ class HomeContainer extends React.Component<IProps, IState> {
   public map: google.maps.Map;
   public userMarker: google.maps.Marker;
   public toMarker: google.maps.Marker;
+  public directions: google.maps.DirectionsRenderer;
   public state = {
     isMenuOpen: false,
     lat: 0,
     lng: 0,
-    toAddress: "",
+    toAddress: "Athens International Airport (ATH), Attiki Odos, Spata Artemida 190 04, Greece",
     toLat: 0,
-    toLng: 0
+    toLng: 0,
+    distance: "",
+    duration: undefined,
+    price: undefined
+
   };
   constructor(props) {
     super(props);
@@ -46,7 +56,7 @@ class HomeContainer extends React.Component<IProps, IState> {
     );
   }
   public render() {
-    const { isMenuOpen, toAddress } = this.state;
+    const { isMenuOpen, toAddress, price } = this.state;
     return (
       <ProfileQuery query={USER_PROFILE}>
         {({ loading }) => (
@@ -58,6 +68,7 @@ class HomeContainer extends React.Component<IProps, IState> {
             toAddress={toAddress}
             onInputChange={this.onInputChange}
             onAddressSubmit={this.onAddressSubmit}
+            price={price}
           />
         )}
       </ProfileQuery>
@@ -90,7 +101,6 @@ class HomeContainer extends React.Component<IProps, IState> {
         lng
       },
       disableDefaultUI: true,
-      minZoom: 8,
       zoom: 13
     };
     this.map = new maps.Map(mapNode, mapConfig);
@@ -143,11 +153,7 @@ class HomeContainer extends React.Component<IProps, IState> {
     const result = await geoCode(toAddress);
     if (result !== false) {
       const { lat, lng, formatted_address: formatedAddress } = result;
-      this.setState({
-        toAddress: formatedAddress,
-        toLat: lat,
-        toLng: lng
-      });
+      
       if (this.toMarker) {
         this.toMarker.setMap(null);
       }
@@ -159,6 +165,70 @@ class HomeContainer extends React.Component<IProps, IState> {
       };
       this.toMarker = new maps.Marker(toMarkerOptions);
       this.toMarker.setMap(this.map);
+
+      const bounds = new maps.LatLngBounds();
+      bounds.extend({lat,lng});
+      bounds.extend({ lat: this.state.lat, lng: this.state.lng });
+      this.map.fitBounds(bounds);
+      this.setState(
+        {
+          toAddress: formatedAddress,
+          toLat: lat,
+          toLng: lng
+        },
+        this.createPath
+      );
+    }
+  };
+
+  public createPath = () => {
+    const {toLat, toLng, lat, lng} = this.state;
+    if (this.directions) {
+      this.directions.setMap(null);
+    }
+    const renderOptions: google.maps.DirectionsRendererOptions = {
+      polylineOptions: {
+        strokeColor: "#000"
+      },
+      suppressMarkers: true
+    };
+    this.directions = new google.maps.DirectionsRenderer(renderOptions);
+    const directionsService: google.maps.DirectionsService = new google.maps.DirectionsService();
+    const to = new google.maps.LatLng(toLat, toLng);
+    const from = new google.maps.LatLng(lat, lng);
+    const directionsOptions: google.maps.DirectionsRequest = {
+      destination: to,
+      origin: from,
+      travelMode: google.maps.TravelMode.DRIVING
+    };
+    directionsService.route(directionsOptions, this.handleRouteRequest);
+  };
+  
+  public handleRouteRequest = (
+    result: google.maps.DirectionsResult,
+    status: google.maps.DirectionsStatus
+  ) => {
+    if(status === google.maps.DirectionsStatus.OK){
+      const {routes} = result;
+      const {
+        distance: { text: distance },
+        duration: { text: duration }
+      } = routes[0].legs[0];
+      this.setState({
+        distance,
+        duration
+      });
+    } else{
+      toast.error("There is no route there, you have to ");
+    }
+  };
+
+  public setPrice = () => {
+    const {distance} = this.state;
+    if(distance){
+      this.setState({
+        price: Number(parseFloat(distance.replace(",", "")) * 3).toFixed(2)
+      });
     }
   };
 }
