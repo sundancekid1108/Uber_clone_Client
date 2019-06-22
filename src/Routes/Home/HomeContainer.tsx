@@ -4,10 +4,10 @@ import ReactDOM from "react-dom";
 import { RouteComponentProps } from "react-router-dom";
 import { geoCode } from "../../mapHelpers";
 import { USER_PROFILE } from "../../sharedQueries.queries";
-import { userProfile, reportMovement, reportMovementVariables } from "../../types/api";
+import { userProfile, reportMovement, reportMovementVariables, getDrivers } from "../../types/api";
 import HomePresenter from "./HomePresenter";
 import { toast } from "react-toastify";
-import {REPORT_LOCATION} from "./HomeQueries.queries";
+import {REPORT_LOCATION, GET_NEARBY_DRIVERS} from "./HomeQueries.queries";
 
 interface IState {
   isMenuOpen: boolean;
@@ -27,6 +27,8 @@ interface IProps extends RouteComponentProps<any> {
 }
 
 class ProfileQuery extends Query<userProfile> {}
+
+class NearbyQueries extends Query<getDrivers> {}
 
 class HomeContainer extends React.Component<IProps, IState> {
   public mapRef: any;
@@ -60,17 +62,22 @@ class HomeContainer extends React.Component<IProps, IState> {
     const { isMenuOpen, toAddress, price } = this.state;
     return (
       <ProfileQuery query={USER_PROFILE}>
-        {({ loading }) => (
-          <HomePresenter
-            loading={loading}
-            isMenuOpen={isMenuOpen}
-            toggleMenu={this.toggleMenu}
-            mapRef={this.mapRef}
-            toAddress={toAddress}
-            onInputChange={this.onInputChange}
-            onAddressSubmit={this.onAddressSubmit}
-            price={price}
-          />
+        {({ loading, data }) => (
+          <NearbyQueries query={GET_NEARBY_DRIVERS}>
+            {() => (
+              <HomePresenter
+                loading={loading}
+                isMenuOpen={isMenuOpen}
+                toggleMenu={this.toggleMenu}
+                mapRef={this.mapRef}
+                toAddress={toAddress}
+                onInputChange={this.onInputChange}
+                price={price}
+                data={data}
+                onAddressSubmit={this.onAddressSubmit}
+              />
+            )}
+          </NearbyQueries>
         )}
       </ProfileQuery>
     );
@@ -227,7 +234,7 @@ class HomeContainer extends React.Component<IProps, IState> {
         duration
       });
     } else{
-      toast.error("There is no route there, you have to ");
+      toast.error("There is no route there");
     }
   };
 
