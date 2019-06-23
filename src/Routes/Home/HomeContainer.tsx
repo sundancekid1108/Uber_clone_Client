@@ -36,6 +36,7 @@ class HomeContainer extends React.Component<IProps, IState> {
   public userMarker: google.maps.Marker;
   public toMarker: google.maps.Marker;
   public directions: google.maps.DirectionsRenderer;
+  public drivers: google.maps.Marker[];
   public state = {
     isMenuOpen: false,
     lat: 0,
@@ -51,6 +52,7 @@ class HomeContainer extends React.Component<IProps, IState> {
   constructor(props) {
     super(props);
     this.mapRef = React.createRef();
+    this.drivers = [];
   }
   public componentDidMount() {
     navigator.geolocation.getCurrentPosition(
@@ -63,7 +65,12 @@ class HomeContainer extends React.Component<IProps, IState> {
     return (
       <ProfileQuery query={USER_PROFILE}>
         {({ loading, data }) => (
-          <NearbyQueries query={GET_NEARBY_DRIVERS}>
+          <NearbyQueries
+            query={GET_NEARBY_DRIVERS}
+            pollInterval={1000}
+            skip={(data && data.GetMyProfile && data.GetMyProfile.user && data.GetMyProfile.user.isDriving) || false}
+            onCompleted={this.handleNearbyDrivers}
+          >
             {() => (
               <HomePresenter
                 loading={loading}
@@ -82,6 +89,7 @@ class HomeContainer extends React.Component<IProps, IState> {
       </ProfileQuery>
     );
   }
+
   public toggleMenu = () => {
     this.setState(state => {
       return {
@@ -89,6 +97,7 @@ class HomeContainer extends React.Component<IProps, IState> {
       };
     });
   };
+
   public handleGeoSucces = (positon: Position) => {
     const {
       coords: { latitude, longitude }
@@ -99,10 +108,15 @@ class HomeContainer extends React.Component<IProps, IState> {
     });
     this.loadMap(latitude, longitude);
   };
+
   public loadMap = (lat, lng) => {
     const { google } = this.props;
     const maps = google.maps;
     const mapNode = ReactDOM.findDOMNode(this.mapRef.current);
+    if (!mapNode) {
+      this.loadMap(lat, lng);
+      return;
+    }
     const mapConfig: google.maps.MapOptions = {
       center: {
         lat,
@@ -127,7 +141,7 @@ class HomeContainer extends React.Component<IProps, IState> {
     const watchOptions: PositionOptions = {
       enableHighAccuracy: true
     };
-    navigator.geolocation.watchPosition(
+    navigator.geolocation.getCurrentPosition(
       this.handleGeoWatchSuccess,
       this.handleGeoWatchError,
       watchOptions
@@ -161,6 +175,8 @@ class HomeContainer extends React.Component<IProps, IState> {
       [name]: value
     } as any);
   };
+
+
   public onAddressSubmit = async () => {
     const { toAddress } = this.state;
     const { google } = this.props;
@@ -190,8 +206,11 @@ class HomeContainer extends React.Component<IProps, IState> {
           toAddress: formatedAddress,
           toLat: lat,
           toLng: lng
-        },
-        this.createPath
+        },()=>{
+          this.createPath(),
+          this.setBounds()
+        }
+            
       );
     }
   };
@@ -216,7 +235,16 @@ class HomeContainer extends React.Component<IProps, IState> {
       origin: from,
       travelMode: google.maps.TravelMode.DRIVING
     };
-    directionsService.route(directionsOptions, this.handleRouteRequest);
+    // directionsService.route(directionsOptions, this.handleRouteRequest);
+    // 밑에꺼로 경로 표시
+    directionsService.route(directionsOptions, (result, status) => {
+      if (status === google.maps.DirectionsStatus.OK){
+        this.directions!.setDirections(result);
+        this.directions!.setMap(this.map);
+      } else{
+        toast.error("There is no route there");
+      }
+    })
   };
   
   public handleRouteRequest = (
@@ -246,6 +274,48 @@ class HomeContainer extends React.Component<IProps, IState> {
       });
     }
   };
+
+  public setBounds = () => {
+    const {lat, lng, toLat, toLng} = this.state;
+    const{google: {maps}} = this.props;
+    const bounds = new maps.LatLngBounds();
+    bounds.extend({lat,lng});
+    bounds.extend({lat:toLat, lng:toLng});
+    this.map!.fitBounds(bounds);
+
+  };
+
+  public handleNearbyDrivers = (data: {} | getDrivers) => {
+    if ("GetNearbyDrivers" in data) {
+      const {
+        GetNearbyDrivers: { drivers, ok }
+      } = data;
+      if (ok && drivers) {
+        for (const driver of drivers) {
+          if (driver && driver.lastLat && driver.lastLng) {
+            console.log(driver);
+            const markerOptions: google.maps.MarkerOptions = {
+              icon: {
+                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+                scale: 5
+              },
+              position: {
+                lat: driver.lastLat,
+                lng: driver.lastLng
+              }
+            };
+            const newMarker: google.maps.Marker = new google.maps.Marker(
+              markerOptions
+            );
+            this.drivers.push(newMarker);
+            newMarker.set("ID", driver.id);
+            newMarker.setMap(this.map);
+          }
+        }
+      }
+    }
+  };
+
 }
 
 export default graphql<any, reportMovement, reportMovementVariables>(

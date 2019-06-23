@@ -89,12 +89,21 @@ const HomePresenter: React.SFC<IProps> = ({
       {!loading && <MenuButton onClick={toggleMenu}>|||</MenuButton>}
       {user && !user.isDriving && (
         <React.Fragment>
-        <AddressBar
+          <AddressBar
             name={"toAddress"}
             onChange={onInputChange}
             value={toAddress}
             onBlur={null}
           />
+
+          {price && (
+            <RequestButton
+              onClick={onAddressSubmit}
+              disabled={toAddress === ""}
+              value={`Request Ride ($${price})`}
+            />
+          )}
+
           <ExtendedButton
             onClick={onAddressSubmit}
             disabled={toAddress === ""}
@@ -102,13 +111,7 @@ const HomePresenter: React.SFC<IProps> = ({
           />
         </React.Fragment>
       )}
-      {price && (
-        <RequestButton
-          onClick={onAddressSubmit}
-          disabled={toAddress === ""}
-          value={`Request Ride ($${price})`}
-        />
-      )}
+      
       <Map ref={mapRef} />
     </Sidebar>
   </Container>
