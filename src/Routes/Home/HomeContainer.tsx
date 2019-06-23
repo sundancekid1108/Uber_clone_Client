@@ -235,16 +235,9 @@ class HomeContainer extends React.Component<IProps, IState> {
       origin: from,
       travelMode: google.maps.TravelMode.DRIVING
     };
-    // directionsService.route(directionsOptions, this.handleRouteRequest);
-    // 밑에꺼로 경로 표시
-    directionsService.route(directionsOptions, (result, status) => {
-      if (status === google.maps.DirectionsStatus.OK){
-        this.directions!.setDirections(result);
-        this.directions!.setMap(this.map);
-      } else{
-        toast.error("There is no route there");
-      }
-    })
+    
+    directionsService.route(directionsOptions, this.handleRouteRequest); 
+ 
   };
   
   public handleRouteRequest = (
@@ -260,8 +253,11 @@ class HomeContainer extends React.Component<IProps, IState> {
       this.setState({
         distance,
         duration
-      });
-    } else{
+      }, this.setPrice);
+      
+      this.directions!.setDirections(result);
+      this.directions!.setMap(this.map);
+    } else {
       toast.error("There is no route there");
     }
   };
