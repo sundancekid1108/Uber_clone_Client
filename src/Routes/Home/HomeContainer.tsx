@@ -2,7 +2,7 @@ import React from "react";
 import { Query, MutationFn, graphql } from "react-apollo";
 import ReactDOM from "react-dom";
 import { RouteComponentProps } from "react-router-dom";
-import { geoCode } from "../../mapHelpers";
+import { getGeoCode } from "../../lib/mapHelpers";
 import { USER_PROFILE } from "../../sharedQueries.queries";
 import { userProfile, reportMovement, reportMovementVariables, getDrivers } from "../../types/api";
 import HomePresenter from "./HomePresenter";
@@ -41,7 +41,7 @@ class HomeContainer extends React.Component<IProps, IState> {
     isMenuOpen: false,
     lat: 0,
     lng: 0,
-    toAddress: "Athens International Airport (ATH), Attiki Odos, Spata Artemida 190 04, Greece",
+    toAddress: "",
     toLat: 0,
     toLng: 0,
     distance: "",
@@ -181,7 +181,7 @@ class HomeContainer extends React.Component<IProps, IState> {
     const { toAddress } = this.state;
     const { google } = this.props;
     const maps = google.maps;
-    const result = await geoCode(toAddress);
+    const result = await getGeoCode(toAddress);
     if (result !== false) {
       const { lat, lng, formatted_address: formatedAddress } = result;
       

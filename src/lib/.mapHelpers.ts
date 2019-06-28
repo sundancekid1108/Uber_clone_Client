@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GOOGLE_API_KEY } from "./secretKey";
+import { GOOGLE_API_KEY } from "../secretKey";
 import { toast } from "react-toastify";
 
 import dotenv from "dotenv";

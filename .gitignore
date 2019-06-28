@@ -111,6 +111,10 @@ typings/
 # env
 .env
 .env.local
+.env.development.local
+.env.test.local
+
+
 # End of https://www.gitignore.io/api/node
 
 #process.txt
