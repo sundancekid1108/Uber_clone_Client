@@ -20,7 +20,7 @@ class MenuContainer extends React.Component {
             if(!ToggleDrivingMode.ok) {
               toast.error(ToggleDrivingMode.error);
               return;
-            }
+            } 
             const query: userProfile | null = cache.readQuery({
               query: USER_PROFILE
             });
@@ -28,11 +28,14 @@ class MenuContainer extends React.Component {
               const {
                 GetMyProfile: { user }
               } = query;
+              
               if (user) {
                 user.isDriving = !user.isDriving;
+                
               }
             }
             cache.writeQuery({ query: USER_PROFILE, data: query });
+
           }
         }}
       >
@@ -42,7 +45,7 @@ class MenuContainer extends React.Component {
               <MenuPresenter
                 data={data}
                 loading={loading}
-                toggleDrivingFn={toggleDrivingFn}
+                toggleDrivingFn={toggleDrivingFn}             
               
               />
             )}

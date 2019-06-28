@@ -66,30 +66,30 @@ class HomeContainer extends React.Component<IProps, IState> {
     const { isMenuOpen, toAddress, price } = this.state;
     return (
       <ProfileQuery query={USER_PROFILE}>
-        {({ loading, data }) => (
+        {({ data, loading:profileLoading }) => (
           <NearbyQueries
             query={GET_NEARBY_DRIVERS}
             pollInterval={1000}
             skip={
-              !!( data &&
+              (data &&
                 data.GetMyProfile &&
                 data.GetMyProfile.user &&
-                data.GetMyProfile.user.isDriving
-              )
+                data.GetMyProfile.user.isDriving) ||
+              false
             }
             onCompleted={this.handleNearbyDrivers}
           >
             {() => (
               <HomePresenter
-                loading={loading}
+                loading={profileLoading}
                 isMenuOpen={isMenuOpen}
                 toggleMenu={this.toggleMenu}
                 mapRef={this.mapRef}
                 toAddress={toAddress}
-                onInputChange={this.onInputChange}
+                onInputChange={this.onAddressSubmit}
+                onAddressSubmit={this.onAddressSubmit}
                 price={price}
                 data={data}
-                onAddressSubmit={this.onAddressSubmit}
               />
             )}
           </NearbyQueries>
@@ -294,28 +294,52 @@ class HomeContainer extends React.Component<IProps, IState> {
       } = data;
       if (ok && drivers) {
         for (const driver of drivers) {
-          if (driver && driver.lastLat && driver.lastLng) {
-            console.log(driver);
-            const markerOptions: google.maps.MarkerOptions = {
-              icon: {
-                path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-                scale: 5
-              },
-              position: {
-                lat: driver.lastLat,
-                lng: driver.lastLng
-              }
-            };
-            const newMarker: google.maps.Marker = new google.maps.Marker(
-              markerOptions
-            );
-            this.drivers.push(newMarker);
-            newMarker.set("ID", driver.id);
-            newMarker.setMap(this.map);
+          const existingDriverMarker: google.maps.Marker | undefined = this.drivers.find((driverMarker: google.maps.Marker) => {
+            const markerID = driverMarker.get("ID");
+            return markerID === driver!.id;
+          });
+          if(existingDriverMarker) {
+            this.updateDriverMarker(existingDriverMarker, driver);
+          } else {
+            this.createDriverMarker(driver);
           }
         }
       }
     }
+  };
+
+  public createDriverMarker = (driver) => {
+    if(driver && driver.lastLat && driver.lastLng) {
+      const { google } = this.props;
+      const markerOptions: google.maps.MarkerOptions = {
+        icon: {
+          path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+          scale: 5
+        },
+        position: {
+          lat: driver.lastLat,
+          lng: driver.lastLng
+        }
+      };
+      const newMarker: google.maps.Marker = new google.maps.Marker(markerOptions);
+      if(newMarker) {
+        this.drivers.push(newMarker);
+        newMarker.set("ID", driver!.id);
+        newMarker.setMap(this.map);
+      }
+    }
+    return;
+  };
+
+  public updateDriverMarker = (marker: google.maps.Marker, driver) => {
+    if(driver && driver.lastLat && driver.lastLng) {
+      marker.setPosition({
+        lat: driver.lastLat,
+        lng: driver.lastLng
+      });
+      marker.setMap(this.map);
+    }
+    return;
   };
 
 }
