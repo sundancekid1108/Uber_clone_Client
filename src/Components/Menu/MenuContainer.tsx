@@ -43,6 +43,7 @@ class MenuContainer extends React.Component {
                 data={data}
                 loading={loading}
                 toggleDrivingFn={toggleDrivingFn}
+              
               />
             )}
           </ProfileQuery>

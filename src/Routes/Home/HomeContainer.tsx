@@ -70,7 +70,13 @@ class HomeContainer extends React.Component<IProps, IState> {
           <NearbyQueries
             query={GET_NEARBY_DRIVERS}
             pollInterval={1000}
-            skip={(data && data.GetMyProfile && data.GetMyProfile.user && data.GetMyProfile.user.isDriving) || false}
+            skip={
+              !!( data &&
+                data.GetMyProfile &&
+                data.GetMyProfile.user &&
+                data.GetMyProfile.user.isDriving
+              )
+            }
             onCompleted={this.handleNearbyDrivers}
           >
             {() => (

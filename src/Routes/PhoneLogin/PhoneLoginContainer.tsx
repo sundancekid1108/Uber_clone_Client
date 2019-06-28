@@ -49,7 +49,7 @@ class PhoneLoginContainer extends React.Component<
                   phone
                 }
               });
-            }, 150);
+            }, 200);
             
           } else {
             toast.error(StartPhoneVerification.error);
