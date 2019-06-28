@@ -25,9 +25,9 @@ const ExtendedLink = styled(Link)`
 interface IProps {
   address: string;
   name: string;
-  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onInputChange: React.ChangeEventHandler<HTMLInputElement>;
   loading: boolean;
-  onSubmit: MutationFn;
+  onSubmit: () => void;
 }
 
 const AddPlacePresenter: React.SFC<IProps> = ({
@@ -39,25 +39,27 @@ const AddPlacePresenter: React.SFC<IProps> = ({
 }) => (
   <React.Fragment>
     <Helmet>
-      <title>Add Place | Nuber</title>
+      <title>Add Place | Newber</title>
     </Helmet>
-    <Header title={"Add Place"} backTo={"/"} />
+    <Header title="Add Place" backTo="/"/>
     <Container>
       <Form submitFn={onSubmit}>
         <ExtendedInput
-          placeholder={"Name"}
-          type={"text"}
+          placeholder="Name"
+          type="text"
           onChange={onInputChange}
-          value={"name"}
+          value={name}
+          name="name"
         />
         <ExtendedInput
-          placeholder={"Address"}
-          type={"text"}
+          placeholder="Address"
+          type="text"
           onChange={onInputChange}
-          value={"address"}
+          value={address}
+          name="address"
         />
-        <ExtendedLink to={"/find-address"}>Pick place from map</ExtendedLink>
-        <Button onClick={null} value={loading ? "Adding place" : "Add Place"} />
+        <ExtendedLink to="/find-address">Pick place from map</ExtendedLink>
+        <Button onClick={null} value={loading ? "Adding place" : "Add Place"}/>
       </Form>
     </Container>
   </React.Fragment>

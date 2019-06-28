@@ -52,14 +52,14 @@ interface IProps {
 
 const SettingsPresenter: React.SFC<IProps> = ({
   logUserOut,
-  userData: { GetMyProfile: { user = null } = {} } = {GetMyProfile:{}},
-  placesData: { GetMyPlaces: { places = null } = {} } = {GetMyPlaces:{}},
+  userData: { GetMyProfile: { user = null } = {} } = {GetMyProfile: { user: null }},
+  placesData: { GetMyPlaces: { places = null } = {} } = {GetMyPlaces:{places: null}},
   userDataLoading,
   placesLoading
 }) => (
   <React.Fragment>
     <Helmet>
-      <title>Settings | Nuber</title>
+      <title>Settings | Newber</title>
     </Helmet>
     <Header title={"Account Settings"} backTo={"/"} />
     <Container>

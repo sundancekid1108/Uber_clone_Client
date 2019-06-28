@@ -16,7 +16,7 @@ interface IState {
 
 interface IProps extends RouteComponentProps<any> {}
 
-class AddPlaceQuery extends Mutation<addPlace, addPlaceVariables> {}
+class AddPlaceMutation extends Mutation<addPlace, addPlaceVariables> {}
 
 class AddPlaceContainer extends React.Component<IProps, IState> {
   constructor(props: IProps) {
@@ -29,24 +29,13 @@ class AddPlaceContainer extends React.Component<IProps, IState> {
       name: ""
     };
   }
+
   public render() {
     const { address, name, lat, lng } = this.state;
     const { history } = this.props;
     return (
-      <AddPlaceQuery
+      <AddPlaceMutation 
         mutation={ADD_PLACE}
-        onCompleted={data => {
-          const { AddPlace } = data;
-          if (AddPlace.ok) {
-            toast.success("Place added!");
-            setTimeout(() => {
-              history.push("/places");
-            }, 2000);
-          } else {
-            toast.error(AddPlace.error);
-          }
-        }}
-        refetchQueries={[{ query: GET_PLACES }]}
         variables={{
           address,
           isFav: false,
@@ -54,18 +43,31 @@ class AddPlaceContainer extends React.Component<IProps, IState> {
           lng,
           name
         }}
+        onCompleted={ data => {
+          const { AddPlace } = data;
+          if (AddPlace.ok) {
+            toast.success("Place added");
+            setTimeout(() => {
+              history.push("/places");
+            }, 2000);
+          } else {
+            toast.error(AddPlace.error);
+          }
+        }}
+        refetchQueries={[{query: GET_PLACES}]}
       >
-        {(addPlaceFn, { loading }) => (
+        {(addPlaceMutaion, { loading }) => (
           <AddPlacePresenter
             onInputChange={this.onInputChange}
             address={address}
             name={name}
             loading={loading}
-            onSubmit={addPlaceFn}
+            onSubmit={() => this.validatePlace(addPlaceMutaion)}
           />
         )}
-      </AddPlaceQuery>
-    );
+      </AddPlaceMutation>
+      
+    )
   }
 
   public onInputChange: React.ChangeEventHandler<
@@ -77,7 +79,16 @@ class AddPlaceContainer extends React.Component<IProps, IState> {
     this.setState({
       [name]: value
     } as any);
-  };
+  }
+
+  public validatePlace(mutation) {
+    const { lat, lng } = this.state;
+    if (lat === 0 && lng === 0) {
+      toast.error("Invalid Position Info");
+      return;
+    }
+    mutation();
+  }
 }
 
 export default AddPlaceContainer;
