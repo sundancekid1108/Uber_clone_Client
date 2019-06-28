@@ -7,7 +7,7 @@ import VerifyPhonePresenter from "./VerifyPhonePresenter";
 import { VERIFY_PHONE } from "./VerifyPhoneQueries.queries";
 import {LOG_USER_IN} from "../../sharedQueries";
 interface IState {
-  verificationKey: string;
+  verificationCode: string;
   phoneNumber: string;
 }
 
@@ -18,50 +18,53 @@ class VerifyMutation extends Mutation<verifyPhone, verifyPhoneVariables> {}
 class VerifyPhoneContainer extends React.Component<IProps, IState> {
   constructor(props: IProps) {
     super(props);
-    if (!props.location.state) {
+    try {
+      Object.hasOwnProperty.call(props.location.state, "phone");
+    } catch (e) {
       props.history.push("/");
     }
     this.state = {
       phoneNumber: props.location.state.phone,
-      verificationKey: ""
-    };
+      verificationCode: ""
+    }
+    this.onInputChange = this.onInputChange.bind(this);
   }
   public render() {
-    const { verificationKey, phoneNumber } = this.state;
+    const { verificationCode, phoneNumber } = this.state;
     return (
       <Mutation mutation={LOG_USER_IN}>
-        {logUserIn => (
+        {(logUserIn) => (
           <VerifyMutation
             mutation={VERIFY_PHONE}
             variables={{
-              key: verificationKey,
+              key: verificationCode,
               phoneNumber
             }}
             onCompleted={data => {
               const { CompletePhoneVerification } = data;
               if (CompletePhoneVerification.ok) {
-                if (CompletePhoneVerification.token) {
+                if(CompletePhoneVerification.token) {
                   logUserIn({
                     variables: {
                       token: CompletePhoneVerification.token
                     }
                   });
-                }
-                toast.success("You're verified, loggin in now");
+                  toast.success("You're verified, loggin in now");
+                } 
               } else {
                 toast.error(CompletePhoneVerification.error);
               }
             }}
-          >
-          {(mutation, { loading }) => (
-            <VerifyPhonePresenter
+        >
+          { (mutation, { loading }) => (
+            <VerifyPhonePresenter 
               onSubmit={mutation}
-              onChange={this.onInputChange}
-              verificationKey={verificationKey}
+              onChange={this.onInputChange} 
+              verificationCode={verificationCode}
               loading={loading}
             />
           )}
-          </VerifyMutation>
+        </VerifyMutation>
         )}
       </Mutation>
     );
@@ -73,8 +76,8 @@ class VerifyPhoneContainer extends React.Component<IProps, IState> {
     } = event;
     this.setState({
       [name]: value
-    } as any);
-  };
+    } as any); 
+  }
 }
 
 export default VerifyPhoneContainer;

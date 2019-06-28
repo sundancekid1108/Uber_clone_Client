@@ -6,6 +6,7 @@ import Form from "../../Components/Form";
 import Header from "../../Components/Header";
 import Input from "../../Components/Input";
 import styled from "../../typed-components";
+import { verifyPhone, verifyPhoneVariables } from "../../types/api";
 
 const Container = styled.div``;
 
@@ -18,29 +19,29 @@ const ExtendedInput = styled(Input)`
 `;
 
 interface IProps {
-  verificationKey: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  onSubmit: MutationFn;
+  verificationCode: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>
+  onSubmit: MutationFn<verifyPhone, verifyPhoneVariables>;
   loading: boolean;
 }
 
 const VerifyPhonePresenter: React.SFC<IProps> = ({
-  verificationKey,
+  verificationCode,
   onChange,
   onSubmit,
   loading
 }) => (
   <Container>
     <Helmet>
-      <title>Verify Phone | Number</title>
+      <title>Verify Phone | Newber</title>
     </Helmet>
     <Header backTo={"/phone-login"} title={"Verify Phone Number"} />
     <ExtendedForm submitFn={onSubmit}>
       <ExtendedInput
-        value={verificationKey}
+        value={verificationCode}
         placeholder={"Enter Verification Code"}
         onChange={onChange}
-        name={"verificationKey"}
+        name="verificationCode"
       />
       <Button
         disabled={loading}

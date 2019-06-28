@@ -54,7 +54,7 @@ interface IProps {
   mapRef: any;
   toAddress: string;
   onAddressSubmit: () => void;
-  price?: string;
+  price: number;
   data?: userProfile;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -96,7 +96,7 @@ const HomePresenter: React.SFC<IProps> = ({
             onBlur={null}
           />
 
-          {price && (
+          {!price ? false : (
             <RequestButton
               onClick={onAddressSubmit}
               disabled={toAddress === ""}

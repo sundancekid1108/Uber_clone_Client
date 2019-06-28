@@ -49,7 +49,7 @@ class AddPlaceContainer extends React.Component<IProps, IState> {
             toast.success("Place added");
             setTimeout(() => {
               history.push("/places");
-            }, 2000);
+            }, 100);
           } else {
             toast.error(AddPlace.error);
           }

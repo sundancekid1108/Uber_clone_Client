@@ -17,8 +17,9 @@ interface IState {
   lat: number;
   lng: number;
   distance: string;
+  distanceValue: number;
   duration?: string;
-  price?: string;
+  price: number;
 }
 
 interface IProps extends RouteComponentProps<any> {
@@ -45,8 +46,9 @@ class HomeContainer extends React.Component<IProps, IState> {
     toLat: 0,
     toLng: 0,
     distance: "",
+    distanceValue: 0,
     duration: undefined,
-    price: undefined
+    price: 0
 
   };
   constructor(props) {
@@ -207,8 +209,8 @@ class HomeContainer extends React.Component<IProps, IState> {
           toLat: lat,
           toLng: lng
         },()=>{
-          this.createPath(),
-          this.setBounds()
+          this.setBounds();
+          this.createPath();
         }
             
       );
@@ -217,6 +219,7 @@ class HomeContainer extends React.Component<IProps, IState> {
 
   public createPath = () => {
     const {toLat, toLng, lat, lng} = this.state;
+    const {google} = this.props;
     if (this.directions) {
       this.directions.setMap(null);
     }
@@ -241,34 +244,31 @@ class HomeContainer extends React.Component<IProps, IState> {
   };
   
   public handleRouteRequest = (
-    result: google.maps.DirectionsResult,
-    status: google.maps.DirectionsStatus
+    result: google.maps.DirectionsResult, 
+    status: google.maps.DirectionsStatus 
   ) => {
-    if(status === google.maps.DirectionsStatus.OK){
-      const {routes} = result;
+    const { google } = this.props;
+    if (status === google.maps.DirectionsStatus.OK) {
+      const { routes } = result;
       const {
-        distance: { text: distance },
+        distance: { value: distanceValue, text: distance },
         duration: { text: duration }
       } = routes[0].legs[0];
       this.setState({
         distance,
-        duration
-      }, this.setPrice);
-      
+        distanceValue,
+        duration,
+        price: this.setPrice(distanceValue)
+      });
       this.directions!.setDirections(result);
       this.directions!.setMap(this.map);
     } else {
-      toast.error("There is no route there");
+      toast.error("There is no route there.");
     }
   };
 
-  public setPrice = () => {
-    const {distance} = this.state;
-    if(distance){
-      this.setState({
-        price: Number(parseFloat(distance.replace(",", "")) * 3).toFixed(2)
-      });
-    }
+  public setPrice = (distanceValue: number) => {
+    return distanceValue ? Number.parseFloat((distanceValue*0.003).toFixed(2)): 0
   };
 
   public setBounds = () => {
