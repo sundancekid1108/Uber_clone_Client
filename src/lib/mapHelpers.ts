@@ -32,7 +32,7 @@ export const getGeoCode = async (address: string) => {
 export const reverseGeoCode = async (lat: number, lng: number) => {
   const URL = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}`;
   const { data } = await axios(URL);
-  console.log(data);
+  // console.log(data);
   if(data.error_message) {
     toast.error(data.error_message);
     return false;

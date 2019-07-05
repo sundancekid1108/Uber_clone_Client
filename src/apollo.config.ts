@@ -98,6 +98,7 @@ import { InMemoryCache } from "apollo-cache-inmemory";
 
   const apolloClient = new ApolloClient({
     cache,
+    resolvers:{},
     link: ApolloLink.from([
       errorLink,
       localStateLink,

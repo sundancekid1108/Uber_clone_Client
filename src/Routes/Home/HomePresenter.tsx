@@ -5,8 +5,16 @@ import Sidebar from "react-sidebar";
 import AddressBar from "../../Components/AddressBar";
 import Button from "../../Components/Button";
 import Menu from "../../Components/Menu";
+import RidePopUp from "../../Components/RidePopUp";
 import styled from "../../typed-components";
-import { userProfile } from "../../types/api";
+import { 
+  userProfile,
+  getRides,
+  requestRide,
+  requestRideVariables,
+  acceptRide,
+  acceptRideVariables
+} from "../../types/api";
 
 const Container = styled.div``;
 
@@ -59,6 +67,8 @@ interface IProps {
   data?: userProfile;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   requestRideMutation?: MutationFn;
+  nearbyRide?: getRides | undefined;
+  acceptRideMutation?: MutationFn<acceptRide, acceptRideVariables>;
  
 }
 
@@ -72,27 +82,29 @@ const HomePresenter: React.SFC<IProps> = ({
   onAddressSubmit,
   price,
   requestRideMutation,
-  data: { GetMyProfile: { user = null } = {} } = {GetMyProfile:{}}
+  data: { GetMyProfile: { user = null } = {} } = {GetMyProfile:{}},
+  nearbyRide: { GetNearbyRide } = { GetNearbyRide: null},
+  acceptRideMutation
 }) => (
   <Container>
     <Helmet>
       <title>Home | Newber</title>
     </Helmet>
     <Sidebar
-      sidebar={<Menu />}
+      sidebar={<Menu/>}
       open={isMenuOpen}
       onSetOpen={toggleMenu}
       styles={{
         sidebar: {
-          backgroundColor: "white",
+          background: "white",
           width: "80%",
           zIndex: "10"
         }
       }}
     >
-    {!loading && (<MenuButton onClick={toggleMenu}>
-      <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd"><path d="M24 18v1h-24v-1h24zm0-6v1h-24v-1h24zm0-6v1h-24v-1h24z" fill="#1040e2"/><path d="M24 19h-24v-1h24v1zm0-6h-24v-1h24v1zm0-6h-24v-1h24v1z"/></svg>
-    </MenuButton>)}
+      {!loading && (<MenuButton onClick={toggleMenu}>
+        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fillRule="evenodd" clipRule="evenodd"><path d="M24 18v1h-24v-1h24zm0-6v1h-24v-1h24zm0-6v1h-24v-1h24z" fill="#1040e2"/><path d="M24 19h-24v-1h24v1zm0-6h-24v-1h24v1zm0-6h-24v-1h24v1z"/></svg>
+      </MenuButton>)}
       {user && !user.isDriving && (
         <React.Fragment>
           <AddressBar
@@ -102,7 +114,7 @@ const HomePresenter: React.SFC<IProps> = ({
             onBlur={() => ""}
           />
           <ExtendedButton
-            onClick={requestRideMutation}
+            onClick={onAddressSubmit}
             disabled={toAddress === ""}
             value={price ? "Change address" : "Pick Address"}
           />
@@ -110,12 +122,26 @@ const HomePresenter: React.SFC<IProps> = ({
       )}
       {!price ? false : (
         <RequestButton
-          onClick={onAddressSubmit}
+          onClick={requestRideMutation}
           disabled={toAddress === ""}
           value={`Request Ride ($${price})`}
         />
       )}
-      <Map ref={mapRef} />
+
+      {GetNearbyRide && GetNearbyRide.ride && (
+        <RidePopUp
+          id={GetNearbyRide.ride.id}
+          pickUpAddress={GetNearbyRide.ride.pickUpAddress}
+          dropOffAddress={GetNearbyRide.ride.dropOffAddress}
+          price={GetNearbyRide.ride.price}
+          distance={GetNearbyRide.ride.distance}
+          passengerName={GetNearbyRide.ride.passenger.fullName || ""}
+          passengerPhoto={GetNearbyRide.ride.passenger.profilePhoto || ""}
+          acceptRideMutation={acceptRideMutation}
+        />
+      )}  
+
+      <Map ref={mapRef}/>
     </Sidebar>
   </Container>
 );
