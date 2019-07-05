@@ -1,13 +1,24 @@
 import React from "react";
-import { Query, MutationFn, graphql } from "react-apollo";
+import { Query, MutationFn, graphql, Mutation } from "react-apollo";
 import ReactDOM from "react-dom";
 import { RouteComponentProps } from "react-router-dom";
-import { getGeoCode } from "../../lib/mapHelpers";
+import { getGeoCode, reverseGeoCode } from "../../lib/mapHelpers";
 import { USER_PROFILE } from "../../sharedQueries.queries";
-import { userProfile, reportMovement, reportMovementVariables, getDrivers } from "../../types/api";
+import { 
+  userProfile, 
+  reportMovement, 
+  reportMovementVariables, 
+  getDrivers,
+  requestRide,
+  requestRideVariables 
+} from "../../types/api";
 import HomePresenter from "./HomePresenter";
 import { toast } from "react-toastify";
-import {REPORT_LOCATION, GET_NEARBY_DRIVERS} from "./HomeQueries.queries";
+import {
+  REPORT_LOCATION, 
+  GET_NEARBY_DRIVERS,
+  REQUEST_RIDE
+} from "./HomeQueries.queries";
 
 interface IState {
   isMenuOpen: boolean;
@@ -18,8 +29,9 @@ interface IState {
   lng: number;
   distance: string;
   distanceValue: number;
-  duration?: string;
+  duration: string;
   price: number;
+  fromAddress: string
 }
 
 interface IProps extends RouteComponentProps<any> {
@@ -29,28 +41,32 @@ interface IProps extends RouteComponentProps<any> {
 
 class ProfileQuery extends Query<userProfile> {}
 
-class NearbyQueries extends Query<getDrivers> {}
+class NearbyQuery extends Query<getDrivers> {}
+
+class RequestRideMutation extends Mutation<requestRide, requestRideVariables> {}
 
 class HomeContainer extends React.Component<IProps, IState> {
   public mapRef: any;
-  public map: google.maps.Map;
-  public userMarker: google.maps.Marker;
-  public toMarker: google.maps.Marker;
-  public directions: google.maps.DirectionsRenderer;
+  public map: google.maps.Map | null = null;
+  public userMarker: google.maps.Marker | null = null;
+  public toMarker: google.maps.Marker | null = null;
+  public directions: google.maps.DirectionsRenderer | null = null;
   public drivers: google.maps.Marker[];
+
   public state = {
+    distance: "",
+    distanceValue: 0,
+    duration: "",
+    fromAddress: "",
     isMenuOpen: false,
     lat: 0,
     lng: 0,
+    price: 0,
     toAddress: "",
     toLat: 0,
     toLng: 0,
-    distance: "",
-    distanceValue: 0,
-    duration: undefined,
-    price: 0
-
   };
+
   constructor(props) {
     super(props);
     this.mapRef = React.createRef();
@@ -63,36 +79,66 @@ class HomeContainer extends React.Component<IProps, IState> {
     );
   }
   public render() {
-    const { isMenuOpen, toAddress, price } = this.state;
+    const { 
+      isMenuOpen, 
+      toAddress, 
+      price,
+      distance,
+      fromAddress,
+      lat,
+      lng,
+      toLat,
+      toLng,
+      duration,
+    } = this.state;
+
     return (
       <ProfileQuery query={USER_PROFILE}>
-        {({ data, loading:profileLoading }) => (
-          <NearbyQueries
+        {({ data, loading: profileLoading}) => (
+          <NearbyQuery 
             query={GET_NEARBY_DRIVERS}
             pollInterval={1000}
             skip={
-              (data &&
+              !!( data &&
                 data.GetMyProfile &&
                 data.GetMyProfile.user &&
-                data.GetMyProfile.user.isDriving) ||
-              false
+                data.GetMyProfile.user.isDriving
+              )
             }
             onCompleted={this.handleNearbyDrivers}
           >
             {() => (
-              <HomePresenter
-                loading={profileLoading}
-                isMenuOpen={isMenuOpen}
-                toggleMenu={this.toggleMenu}
-                mapRef={this.mapRef}
-                toAddress={toAddress}
-                onInputChange={this.onAddressSubmit}
-                onAddressSubmit={this.onAddressSubmit}
-                price={price}
-                data={data}
-              />
+              <RequestRideMutation
+                mutation={REQUEST_RIDE}
+                variables={{
+                  distance,
+                  dropOffAddress: toAddress,
+                  dropOffLat: toLat,
+                  dropOffLng: toLng,
+                  duration,
+                  pickUpAddress: fromAddress,
+                  pickUpLat: lat,
+                  pickUpLng: lng,
+                  price,
+                }}
+              >
+                {requestRideMutation => (
+                  <HomePresenter 
+                    loading={profileLoading}
+                    isMenuOpen={isMenuOpen} 
+                    toggleMenu={this.toggleMenu}
+                    mapRef={this.mapRef}
+                    toAddress={toAddress}
+                    onInputChange={this.onInputChange}
+                    onAddressSubmit={this.onAddressSubmit}
+                    price={price}
+                    data={data}
+                    requestRideMutation={requestRideMutation}
+                  />
+                )}
+              </RequestRideMutation>
             )}
-          </NearbyQueries>
+          </NearbyQuery>
         )}
       </ProfileQuery>
     );
@@ -119,63 +165,63 @@ class HomeContainer extends React.Component<IProps, IState> {
 
   public loadMap = (lat, lng) => {
     const { google } = this.props;
-    const maps = google.maps;
-    const mapNode = ReactDOM.findDOMNode(this.mapRef.current);
-    if (!mapNode) {
-      this.loadMap(lat, lng);
-      return;
-    }
-    const mapConfig: google.maps.MapOptions = {
-      center: {
-        lat,
-        lng
-      },
-      disableDefaultUI: true,
-      zoom: 13
-    };
-    this.map = new maps.Map(mapNode, mapConfig);
-    const userMarkerOptions: google.maps.MarkerOptions = {
-      icon: {
-        path: maps.SymbolPath.CIRCLE,
-        scale: 7
-      },
-      position: {
-        lat,
-        lng
-      }
-    };
-    this.userMarker = new maps.Marker(userMarkerOptions);
-    this.userMarker.setMap(this.map);
-    const watchOptions: PositionOptions = {
-      enableHighAccuracy: true
-    };
-    navigator.geolocation.getCurrentPosition(
-      this.handleGeoWatchSuccess,
-      this.handleGeoWatchError,
-      watchOptions
-    );
+        const maps = google.maps;
+        const mapNode = ReactDOM.findDOMNode(this.mapRef.current);
+        if (!mapNode) {
+          this.loadMap(lat, lng);
+          return;
+        }
+        const mapConfig: google.maps.MapOptions = {
+          center: {
+            lat,
+            lng
+          },
+          disableDefaultUI: true,
+          zoom: 13
+        };
+        this.map = new maps.Map(mapNode, mapConfig);
+
+        const watchOptions: PositionOptions = {
+          enableHighAccuracy: true
+        };
+        navigator.geolocation.watchPosition(
+          this.handleGeoSuccess,
+          this.handleGeoError,
+          watchOptions
+        );
+
+        const userMarkerOption: google.maps.MarkerOptions = {
+          icon: {
+            path: maps.SymbolPath.CIRCLE,
+            scale: 7
+          },
+          position: {
+            lat,
+            lng
+          }
+        };
+        this.userMarker = new maps.Marker(userMarkerOption);
+        this.userMarker!.setMap(this.map);
   };
-  public handleGeoWatchSuccess = (position: Position) => {
-    const {reportLocation} = this.props;
-    const {
-      coords: { latitude, longitude }
-    } = position;
-    this.userMarker.setPosition({ lat: latitude, lng: longitude });
-    this.map.panTo({ lat: latitude, lng: longitude });
-    reportLocation({
-      variables: {
-        lat: parseFloat(latitude.toFixed(10)),
-        lng: parseFloat(longitude.toFixed(10))
-      }
-    });
-  };
-  public handleGeoWatchError = () => {
-    console.log("Error watching you");
-  };
-  public handleGeoError = () => {
-    console.log("No location");
-  };
-  public onInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  public handleGeoSuccess: PositionCallback = (position: Position) => {
+        const {
+          coords: { latitude, longitude } 
+        } = position;
+        this.setState({
+          lat: latitude,
+          lng: longitude
+        });
+        this.getFromAddress(latitude, longitude);
+        this.loadMap(latitude, longitude);
+      };
+  
+
+  public handleGeoError: PositionErrorCallback = () => {
+    console.error("No location");
+  }
+
+  public onInputChange: React.ChangeEventHandler<HTMLInputElement> = event => {
     const {
       target: { name, value }
     } = event;
@@ -190,37 +236,29 @@ class HomeContainer extends React.Component<IProps, IState> {
     const { google } = this.props;
     const maps = google.maps;
     const result = await getGeoCode(toAddress);
-    if (result !== false) {
-      const { lat, lng, formatted_address: formatedAddress } = result;
-      
+    if (result !== false ) {
+      const { lat, lng, formatted_address: formattedAddress } = result
       if (this.toMarker) {
         this.toMarker.setMap(null);
-      }
-      const toMarkerOptions: google.maps.MarkerOptions = {
-        position: {
-          lat,
-          lng
         }
-      };
-      this.toMarker = new maps.Marker(toMarkerOptions);
-      this.toMarker.setMap(this.map);
+        const toMarkerOptions: google.maps.MarkerOptions = {
+          position: {
+            lat,
+            lng
+          }
+        };
+        this.toMarker = new maps.Marker(toMarkerOptions);
+        this.toMarker!.setMap(this.map);
 
-      const bounds = new maps.LatLngBounds();
-      bounds.extend({lat,lng});
-      bounds.extend({ lat: this.state.lat, lng: this.state.lng });
-      this.map.fitBounds(bounds);
-      this.setState(
-        {
-          toAddress: formatedAddress,
+        this.setState({
+          toAddress: formattedAddress,
           toLat: lat,
           toLng: lng
-        },()=>{
+        }, () => {
           this.setBounds();
           this.createPath();
-        }
-            
-      );
-    }
+        });
+      }
   };
 
   public createPath = () => {
@@ -340,6 +378,15 @@ class HomeContainer extends React.Component<IProps, IState> {
       marker.setMap(this.map);
     }
     return;
+  };
+
+  public getFromAddress = async (lat: number, lng: number) => {
+    const address = await reverseGeoCode(lat, lng);
+    if (address) {
+      this.setState({
+        fromAddress: address
+      });
+    }
   };
 
 }

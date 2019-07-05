@@ -1,4 +1,5 @@
 import React from "react";
+import {MutationFn} from "react-apollo";
 import Helmet from "react-helmet";
 import Sidebar from "react-sidebar";
 import AddressBar from "../../Components/AddressBar";
@@ -57,6 +58,8 @@ interface IProps {
   price: number;
   data?: userProfile;
   onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  requestRideMutation?: MutationFn;
+ 
 }
 
 const HomePresenter: React.SFC<IProps> = ({
@@ -68,6 +71,7 @@ const HomePresenter: React.SFC<IProps> = ({
   onInputChange,
   onAddressSubmit,
   price,
+  requestRideMutation,
   data: { GetMyProfile: { user = null } = {} } = {GetMyProfile:{}}
 }) => (
   <Container>
@@ -98,7 +102,7 @@ const HomePresenter: React.SFC<IProps> = ({
             onBlur={() => ""}
           />
           <ExtendedButton
-            onClick={onAddressSubmit}
+            onClick={requestRideMutation}
             disabled={toAddress === ""}
             value={price ? "Change address" : "Pick Address"}
           />
