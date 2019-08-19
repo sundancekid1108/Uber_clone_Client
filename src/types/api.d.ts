@@ -35,7 +35,7 @@ export interface editPlace {
 }
 
 export interface editPlaceVariables {
-  placeId: number;
+  PlaceId: number;
   isFav?: boolean | null;
 }
 
@@ -63,6 +63,93 @@ export interface addPlaceVariables {
   lng: number;
   address: string;
   isFav: boolean;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL query operation: getChat
+// ====================================================
+
+export interface getChat_GetChat_chat_messages {
+  __typename: "Message";
+  id: number;
+  text: string;
+  userId: number | null;
+}
+
+export interface getChat_GetChat_chat {
+  __typename: "Chat";
+  passengerId: number;
+  driverId: number;
+  messages: (getChat_GetChat_chat_messages | null)[];
+}
+
+export interface getChat_GetChat {
+  __typename: "GetChatResponse";
+  ok: boolean;
+  error: string | null;
+  chat: getChat_GetChat_chat | null;
+}
+
+export interface getChat {
+  GetChat: getChat_GetChat;
+}
+
+export interface getChatVariables {
+  chatId: number;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: sendMessage
+// ====================================================
+
+export interface sendMessage_SendChatMessage_message {
+  __typename: "Message";
+  id: number;
+  text: string;
+  userId: number | null;
+}
+
+export interface sendMessage_SendChatMessage {
+  __typename: "SendChatMessageResponse";
+  ok: boolean;
+  error: string | null;
+  message: sendMessage_SendChatMessage_message | null;
+}
+
+export interface sendMessage {
+  SendChatMessage: sendMessage_SendChatMessage;
+}
+
+export interface sendMessageVariables {
+  text: string;
+  chatId: number;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL subscription operation: messageSubscription
+// ====================================================
+
+export interface messageSubscription_MessageSubscription {
+  __typename: "Message";
+  id: number;
+  text: string;
+  userId: number | null;
+}
+
+export interface messageSubscription {
+  MessageSubscription: messageSubscription_MessageSubscription | null;
 }
 
 /* tslint:disable */
@@ -236,6 +323,34 @@ export interface acceptRideVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
+// GraphQL subscription operation: nearbyRides
+// ====================================================
+
+export interface nearbyRides_NearbyRideSubscription_passenger {
+  __typename: "User";
+  fullName: string | null;
+  profilePhoto: string | null;
+}
+
+export interface nearbyRides_NearbyRideSubscription {
+  __typename: "Ride";
+  id: number;
+  pickUpAddress: string;
+  dropOffAddress: string;
+  price: number;
+  distance: string;
+  passenger: nearbyRides_NearbyRideSubscription_passenger;
+}
+
+export interface nearbyRides {
+  NearbyRideSubscription: nearbyRides_NearbyRideSubscription | null;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
 // GraphQL mutation operation: startPhoneVerification
 // ====================================================
 
@@ -251,6 +366,121 @@ export interface startPhoneVerification {
 
 export interface startPhoneVerificationVariables {
   phoneNumber: string;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL query operation: getRide
+// ====================================================
+
+export interface getRide_GetRide_ride_driver {
+  __typename: "User";
+  id: number;
+  fullName: string | null;
+  profilePhoto: string | null;
+}
+
+export interface getRide_GetRide_ride_passenger {
+  __typename: "User";
+  id: number;
+  fullName: string | null;
+  profilePhoto: string | null;
+}
+
+export interface getRide_GetRide_ride {
+  __typename: "Ride";
+  id: number;
+  status: string;
+  pickUpAddress: string;
+  dropOffAddress: string;
+  price: number;
+  distance: string;
+  duration: string;
+  driver: getRide_GetRide_ride_driver | null;
+  passenger: getRide_GetRide_ride_passenger;
+  chatId: number | null;
+}
+
+export interface getRide_GetRide {
+  __typename: "GetRideResponse";
+  ok: boolean;
+  error: string | null;
+  ride: getRide_GetRide_ride | null;
+}
+
+export interface getRide {
+  GetRide: getRide_GetRide;
+}
+
+export interface getRideVariables {
+  rideId: number;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL mutation operation: updateRide
+// ====================================================
+
+export interface updateRide_UpdateRideStatus {
+  __typename: "UpdateRideStatusResponse";
+  ok: boolean;
+  error: string | null;
+  rideId: number | null;
+}
+
+export interface updateRide {
+  UpdateRideStatus: updateRide_UpdateRideStatus;
+}
+
+export interface updateRideVariables {
+  rideId: number;
+  status: StatusOptions;
+}
+
+/* tslint:disable */
+/* eslint-disable */
+// This file was automatically generated and should not be edited.
+
+// ====================================================
+// GraphQL subscription operation: rideUpdate
+// ====================================================
+
+export interface rideUpdate_RideStatusSubscription_driver {
+  __typename: "User";
+  id: number;
+  fullName: string | null;
+  profilePhoto: string | null;
+}
+
+export interface rideUpdate_RideStatusSubscription_passenger {
+  __typename: "User";
+  id: number;
+  fullName: string | null;
+  profilePhoto: string | null;
+}
+
+export interface rideUpdate_RideStatusSubscription {
+  __typename: "Ride";
+  id: number;
+  status: string;
+  pickUpAddress: string;
+  dropOffAddress: string;
+  price: number;
+  distance: string;
+  duration: string;
+  driver: rideUpdate_RideStatusSubscription_driver | null;
+  passenger: rideUpdate_RideStatusSubscription_passenger;
+  chatId: number | null;
+}
+
+export interface rideUpdate {
+  RideStatusSubscription: rideUpdate_RideStatusSubscription | null;
 }
 
 /* tslint:disable */
@@ -284,23 +514,23 @@ export interface facebookConnectVariables {
 // This file was automatically generated and should not be edited.
 
 // ====================================================
-// GraphQL mutation operation: verifyPhone
+// GraphQL mutation operation: verfiyPhone
 // ====================================================
 
-export interface verifyPhone_CompletePhoneVerification {
+export interface verfiyPhone_CompletePhoneVerification {
   __typename: "CompletePhoneVerificationResponse";
   ok: boolean;
   error: string | null;
   token: string | null;
 }
 
-export interface verifyPhone {
-  CompletePhoneVerification: verifyPhone_CompletePhoneVerification;
+export interface verfiyPhone {
+  CompletePhoneVerification: verfiyPhone_CompletePhoneVerification;
 }
 
-export interface verifyPhoneVariables {
-  key: string;
+export interface verfiyPhoneVariables {
   phoneNumber: string;
+  key: string;
 }
 
 /* tslint:disable */
@@ -313,11 +543,12 @@ export interface verifyPhoneVariables {
 
 export interface userProfile_GetMyProfile_user {
   __typename: "User";
+  id: number;
   profilePhoto: string | null;
+  fullName: string | null;
   firstName: string;
   lastName: string;
   email: string | null;
-  fullName: string | null;
   isDriving: boolean;
 }
 
@@ -366,6 +597,14 @@ export interface getPlaces {
 //==============================================================
 // START Enums and Input Objects
 //==============================================================
+
+export enum StatusOptions {
+  ACCEPTED = "ACCEPTED",
+  CANCELED = "CANCELED",
+  FINISHED = "FINISHED",
+  ONROUTE = "ONROUTE",
+  REQUESTING = "REQUESTING",
+}
 
 //==============================================================
 // END Enums and Input Objects

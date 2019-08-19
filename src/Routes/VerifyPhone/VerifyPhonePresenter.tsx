@@ -1,12 +1,12 @@
+import Button from "components/Button";
+import Form from "components/Form";
+import Header from "components/Header";
+import Input from "components/Input";
 import React from "react";
 import { MutationFn } from "react-apollo";
 import Helmet from "react-helmet";
-import Button from "../../Components/Button";
-import Form from "../../Components/Form";
-import Header from "../../Components/Header";
-import Input from "../../Components/Input";
 import styled from "../../typed-components";
-import { verifyPhone, verifyPhoneVariables } from "../../types/api";
+import { verfiyPhone, verfiyPhoneVariables } from "../../types/api";
 
 const Container = styled.div``;
 
@@ -21,19 +21,19 @@ const ExtendedInput = styled(Input)`
 interface IProps {
   verificationCode: string;
   onChange: React.ChangeEventHandler<HTMLInputElement>
-  onSubmit: MutationFn<verifyPhone, verifyPhoneVariables>;
+  onSubmit: MutationFn<verfiyPhone, verfiyPhoneVariables>;
   loading: boolean;
 }
 
-const VerifyPhonePresenter: React.SFC<IProps> = ({
-  verificationCode,
+const VerifyPhonePresenter: React.SFC<IProps> = ({ 
+  verificationCode, 
   onChange,
   onSubmit,
   loading
 }) => (
   <Container>
     <Helmet>
-      <title>Verify Phone | Newber</title>
+      <title>Verify Phone | Number</title>
     </Helmet>
     <Header backTo={"/phone-login"} title={"Verify Phone Number"} />
     <ExtendedForm submitFn={onSubmit}>
@@ -45,7 +45,7 @@ const VerifyPhonePresenter: React.SFC<IProps> = ({
       />
       <Button
         disabled={loading}
-        value={loading ? "Verifying" : "Submit"}
+        value={loading ? "Verifing": "Submit"}
         onClick={null}
       />
     </ExtendedForm>

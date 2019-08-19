@@ -1,8 +1,8 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { reverseGeoCode, getGeoCode } from "../../lib/mapHelpers";
-import FindAddressPresenter from "./FindAddressPresenter";
 import { RouteComponentProps } from "react-router-dom";
+import { getCode, reverseGeoCode } from "../../lib/mapHelpers";
+import FindAddressPresenter from "./FindAddressPresenter";
 
 interface IProps extends RouteComponentProps<any> {
   google: any;
@@ -14,7 +14,7 @@ interface IState {
   address: string;
 }
 
-class FindAddressContainer extends React.Component<IProps, IState> {
+class FIndAddressContainer extends React.Component<IProps, IState> {
   public mapRef: any;
   public map: google.maps.Map | null;
   public state ={
@@ -107,7 +107,7 @@ class FindAddressContainer extends React.Component<IProps, IState> {
   public onInputBlur = async () => {
     if (!this.map) { return };
     const { address } = this.state;
-    const result = await getGeoCode(address);
+    const result = await getCode(address);
     if (result !== false ) {
       const { lat, lng, formatted_address } = result;
       this.setState({
@@ -142,4 +142,4 @@ class FindAddressContainer extends React.Component<IProps, IState> {
   }
 }
 
-export default FindAddressContainer;
+export default FIndAddressContainer;

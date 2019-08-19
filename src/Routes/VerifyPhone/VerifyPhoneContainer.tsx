@@ -2,10 +2,11 @@ import React from "react";
 import { Mutation } from "react-apollo";
 import { RouteComponentProps } from "react-router-dom";
 import { toast } from "react-toastify";
-import { verifyPhone, verifyPhoneVariables } from "../../types/api";
+import { LOG_USER_IN } from "../../sharedQueries";
+import { verfiyPhone, verfiyPhoneVariables } from "../../types/api";
+import { VERIFY_PHONE } from "./VerifyPhone.queries";
 import VerifyPhonePresenter from "./VerifyPhonePresenter";
-import { VERIFY_PHONE } from "./VerifyPhoneQueries.queries";
-import {LOG_USER_IN} from "../../sharedQueries";
+
 interface IState {
   verificationCode: string;
   phoneNumber: string;
@@ -13,7 +14,7 @@ interface IState {
 
 interface IProps extends RouteComponentProps<any> {}
 
-class VerifyMutation extends Mutation<verifyPhone, verifyPhoneVariables> {}
+class VerifyMutation extends Mutation<verfiyPhone, verfiyPhoneVariables> {}
 
 class VerifyPhoneContainer extends React.Component<IProps, IState> {
   constructor(props: IProps) {

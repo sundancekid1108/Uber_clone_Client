@@ -1,12 +1,11 @@
+import Button from "components/Button";
+import Form from "components/Form";
+import Header from "components/Header";
+import Input from "components/Input";
 import React from "react";
 import Helmet from "react-helmet";
 import { Link } from "react-router-dom";
-import Button from "../../Components/Button";
-import Form from "../../Components/Form";
-import Header from "../../Components/Header";
-import Input from "../../Components/Input";
 import styled from "../../typed-components";
-import { MutationFn } from "react-apollo";
 
 const Container = styled.div`
   padding: 0 40px;
@@ -17,9 +16,9 @@ const ExtendedInput = styled(Input)`
 `;
 
 const ExtendedLink = styled(Link)`
+  display: block;
   text-decoration: underline;
   margin-bottom: 20px;
-  display: block;
 `;
 
 interface IProps {

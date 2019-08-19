@@ -1,2 +1,1 @@
-import AddressBar from "./AddressBar";
-export default AddressBar;
+export { default } from "./AddressBar";

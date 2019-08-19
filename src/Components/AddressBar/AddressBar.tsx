@@ -19,23 +19,21 @@ const Container = styled.input`
   height: auto;
 `;
 
-
 interface IProps {
-    value: string;
-    onBlur: any;
-    name: string;
-    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  }
-  
-  const AddressBar: React.SFC<IProps> = ({ value, onBlur, onChange, name }) => (
-    <Container
-      value={value}
-      onBlur={onBlur}
-      onSubmit={onBlur}
-      onChange={onChange}
-      placeholder={"Type address"}
-      name={name}
-    />
-  );
-  
-  export default AddressBar;
+  value: string;
+  onBlur: () => void;
+  name: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+}
+
+const AddressBar: React.SFC<IProps> = ({ value, onBlur, onChange, name }) => (
+  <Container
+    value={value}
+    onBlur={onBlur}
+    onChange={onChange}
+    placeholder="Type address"
+    name={name}
+  />
+)
+
+export default AddressBar;

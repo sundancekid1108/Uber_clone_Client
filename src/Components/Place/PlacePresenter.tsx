@@ -1,6 +1,7 @@
 import React from "react";
 import { MutationFn } from "react-apollo";
 import styled from "../../typed-components";
+import { editPlace, editPlaceVariables } from "../../types/api";
 
 const Place = styled.div`
   margin: 15px 0;
@@ -32,17 +33,12 @@ interface IProps {
   fav: boolean;
   name: string;
   address: string;
-  onStarPress: MutationFn;
+  onToggleStar: MutationFn<editPlace, editPlaceVariables>;
 }
 
-const PlacePresenter: React.SFC<IProps> = ({
-  onStarPress,
-  fav,
-  name,
-  address
-}) => (
+const PlacePresenter: React.SFC<IProps> = ({ onToggleStar, fav, name, address }) => (
   <Place>
-    <Icon onClick={onStarPress as any}>{fav ? "★" : "✩"}</Icon>
+    <Icon onClick={() => onToggleStar()}>{fav ? "★" : "✩" }</Icon>
     <Container>
       <Name>{name}</Name>
       <Address>{address}</Address>

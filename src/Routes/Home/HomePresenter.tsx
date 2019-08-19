@@ -1,19 +1,19 @@
+import AddressBar from "components/AddressBar";
+import Button from "components/Button";
+import Menu from "components/Menu";
+import RidePopUp from 'components/RidePopUp';
 import React from "react";
-import {MutationFn} from "react-apollo";
+import { MutationFn } from "react-apollo";
 import Helmet from "react-helmet";
 import Sidebar from "react-sidebar";
-import AddressBar from "../../Components/AddressBar";
-import Button from "../../Components/Button";
-import Menu from "../../Components/Menu";
-import RidePopUp from "../../Components/RidePopUp";
 import styled from "../../typed-components";
 import { 
-  userProfile,
-  getRides,
-  requestRide,
-  requestRideVariables,
   acceptRide,
-  acceptRideVariables
+  acceptRideVariables, 
+  getRides, 
+  requestRide, 
+  requestRideVariables,
+  userProfile,
 } from "../../types/api";
 
 const Container = styled.div``;
@@ -24,14 +24,25 @@ const MenuButton = styled.button`
   position: absolute;
   top: 10px;
   left: 10px;
-  text-align: center;
-  font-weight: 800;
   border: 0;
   cursor: pointer;
-  font-size: 20px;
-  transform: rotate(90deg);
   z-index: 2;
-  background-color: transparent;
+`;
+
+const ExtendedButton = styled(Button)`
+  position: absolute;
+  height: auto;
+  width: 80%;
+  left: 0;
+  right: 0;
+  margin: auto;
+  bottom: 50px;
+  z-index: 10;
+  background-color: rgba(0, 0, 0, .8);
+`;
+
+const RequestButton = styled(ExtendedButton)`
+  bottom: 7rem;
 `;
 
 const Map = styled.div`
@@ -40,49 +51,32 @@ const Map = styled.div`
   width: 100%;
 `;
 
-
-const ExtendedButton = styled(Button)`
-  position: absolute;
-  bottom: 50px;
-  left: 0;
-  right: 0;
-  margin: auto;
-  z-index: 10;
-  height: auto;
-  width: 80%;
-`;
-
-const RequestButton = styled(ExtendedButton)`
-  bottom: 250px;
-`;
-
 interface IProps {
+  loading: boolean;
   isMenuOpen: boolean;
   toggleMenu: () => void;
-  loading: boolean;
   mapRef: any;
   toAddress: string;
-  onAddressSubmit: () => void;
+  onAddressSubmit: any;
+  onInputChange: React.ChangeEventHandler<HTMLInputElement>;
   price: number;
   data?: userProfile;
-  onInputChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-  requestRideMutation?: MutationFn;
+  requestRideMutation?: MutationFn<requestRide, requestRideVariables>;
   nearbyRide?: getRides | undefined;
   acceptRideMutation?: MutationFn<acceptRide, acceptRideVariables>;
- 
 }
 
 const HomePresenter: React.SFC<IProps> = ({
-  isMenuOpen,
+  loading, 
+  isMenuOpen, 
   toggleMenu,
-  loading,
-  toAddress,
   mapRef,
+  toAddress,
   onInputChange,
   onAddressSubmit,
   price,
+  data: { GetMyProfile: { user = null } = {} } = { GetMyProfile: {}},
   requestRideMutation,
-  data: { GetMyProfile: { user = null } = {} } = {GetMyProfile:{}},
   nearbyRide: { GetNearbyRide } = { GetNearbyRide: null},
   acceptRideMutation
 }) => (
@@ -127,7 +121,6 @@ const HomePresenter: React.SFC<IProps> = ({
           value={`Request Ride ($${price})`}
         />
       )}
-
       {GetNearbyRide && GetNearbyRide.ride && (
         <RidePopUp
           id={GetNearbyRide.ride.id}
@@ -135,15 +128,14 @@ const HomePresenter: React.SFC<IProps> = ({
           dropOffAddress={GetNearbyRide.ride.dropOffAddress}
           price={GetNearbyRide.ride.price}
           distance={GetNearbyRide.ride.distance}
-          passengerName={GetNearbyRide.ride.passenger.fullName || ""}
-          passengerPhoto={GetNearbyRide.ride.passenger.profilePhoto || ""}
+          passengerName={GetNearbyRide.ride.passenger!.fullName || ""}
+          passengerPhoto={GetNearbyRide.ride.passenger!.profilePhoto || ""}
           acceptRideMutation={acceptRideMutation}
         />
-      )}  
-
+      )}
       <Map ref={mapRef}/>
     </Sidebar>
   </Container>
-);
+)
 
 export default HomePresenter;

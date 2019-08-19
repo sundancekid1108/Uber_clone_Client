@@ -1,16 +1,13 @@
 import React from "react";
 import { Mutation, MutationFn } from "react-apollo";
 import { RouteComponentProps } from "react-router-dom";
-import { facebookConnect, facebookConnectVariables } from "../../types/api";
-import SocialLoginPresenter from "./SocialLoginPresenter";
-import { FACEBOOK_CONNECT } from "./SocialLoginQueries.queries";
 import { toast } from "react-toastify";
-import { LOG_USER_IN } from "../../sharedQueries";
+import { LOG_USER_IN } from 'sharedQueries';
+import { facebookConnect, facebookConnectVariables } from "../../types/api";
+import { FACEBOOK_CONNECT } from "./SocialLogin.queries";
+import SocialLoginPresenter from "./SocialLoginPresenter";
 
-class LoginMutation extends Mutation<
-  facebookConnect,
-  facebookConnectVariables
-> {}
+class LoginMutation extends Mutation<facebookConnect, facebookConnectVariables> {}
 
 interface IState {
   firstName: string;
@@ -27,13 +24,13 @@ class SocialLoginContainer extends React.Component<IProps, IState> {
     fbId: "",
     firstName: "",
     lastName: ""
-  };
+  }
   public facebookMutation: MutationFn;
   public render() {
     return (
       <Mutation mutation={LOG_USER_IN}>
         {logUserIn => (
-          <LoginMutation
+          <LoginMutation 
             mutation={FACEBOOK_CONNECT}
             onCompleted={data => {
               const { FacebookConnect } = data;
@@ -42,7 +39,7 @@ class SocialLoginContainer extends React.Component<IProps, IState> {
                   variables: {
                     token: FacebookConnect.token
                   }
-                });
+                })
               } else {
                 toast.error(FacebookConnect.error);
               }
@@ -50,22 +47,17 @@ class SocialLoginContainer extends React.Component<IProps, IState> {
           >
             {(facebookMutation, { loading }) => {
               this.facebookMutation = facebookMutation;
-              return (
-                <SocialLoginPresenter loginCallback={this.loginCallback} />
-              );
+              return <SocialLoginPresenter loginCallback={this.loginCallback}/>;
             }}
           </LoginMutation>
         )}
       </Mutation>
-    );
+    )
   }
-
-  public loginCallback = (response) => {
-    // tslint: disable-next-line
-    console.log(response);
-    const { name, first_name, last_name, email, id, accessToken } = response;
+  public loginCallback = response => {
+    const { name, first_name, last_name, id, accessToken, email } = response;
     if (accessToken) {
-      toast.success(`Welcome ${name}!`);
+      toast.success(`Welcome ${name}`);
       this.facebookMutation({
         variables: {
           email,
@@ -73,7 +65,7 @@ class SocialLoginContainer extends React.Component<IProps, IState> {
           firstName: first_name,
           lastName: last_name
         }
-      });
+      })
     } else {
       toast.error("Could not log you in 😔");
     }

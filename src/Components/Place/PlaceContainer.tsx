@@ -2,8 +2,8 @@ import React from "react";
 import { Mutation } from "react-apollo";
 import { GET_PLACES } from "../../sharedQueries.queries";
 import { editPlace, editPlaceVariables } from "../../types/api";
+import { EDIT_PLACE } from "./Place.queries";
 import PlacePresenter from "./PlacePresenter";
-import { EDIT_PLACE } from "./PlaceQueries.queries";
 
 interface IProps {
   fav: boolean;
@@ -21,21 +21,21 @@ class PlaceContainer extends React.Component<IProps> {
       <FavMutation
         mutation={EDIT_PLACE}
         variables={{
-          isFav: !fav,
-          placeId: id
+          PlaceId: id,
+          isFav: !fav
         }}
         refetchQueries={[{ query: GET_PLACES }]}
       >
-        {editPlaceFn => (
+        {editPlaceMutation => (
           <PlacePresenter
-            onStarPress={editPlaceFn}
+            onToggleStar={editPlaceMutation}
             fav={fav}
             name={name}
             address={address}
           />
         )}
       </FavMutation>
-    );
+    )
   }
 }
 

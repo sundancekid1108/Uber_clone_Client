@@ -1,2 +1,1 @@
-import MenuContainer from "./MenuContainer";
-export default MenuContainer;
+export { default } from "./MenuContainer";

@@ -14,7 +14,8 @@ class PlacesContainer extends React.Component {
           <PlacesPresenter data={data} loading={loading} />
         )}
       </PlacesQuery>
-    );
+    )
   }
 }
+
 export default PlacesContainer;

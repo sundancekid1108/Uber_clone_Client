@@ -1,2 +1,1 @@
-import PhotoInput from "./PhotoInput";
-export default PhotoInput;
+export { default } from "./PhotoInput";

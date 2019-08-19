@@ -1,12 +1,8 @@
-import dotenv from "dotenv";
-dotenv.config();
-
+import BackArrow from "components/BackArrow";
 import React from "react";
-import Helmet from "react-helmet";
-import BackArrow from "../../Components/BackArrow";
-import styled from "../../typed-components";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
-
+import Helmet from "react-helmet";
+import styled from "../../typed-components";
 
 const Container = styled.div`
   margin-top: 30px;
@@ -21,7 +17,6 @@ const Title = styled.h2`
 const Link = styled.span`
   display: flex;
   align-items: center;
-  cursor: pointer;
 `;
 
 const Icon = styled.span`
@@ -34,14 +29,11 @@ const BackArrowExtended = styled(BackArrow)`
   left: 20px;
 `;
 
-
-
 interface IProps {
   loginCallback: (response) => void;
 }
 
-
-const SocialLoginPresenter: React.SFC<IProps> = ({ loginCallback }) => (
+const socialLoginPresenter: React.SFC<IProps> = ({ loginCallback }) => (
   <Container>
     <Helmet>
       <title>Social Login | Newber</title>
@@ -49,7 +41,7 @@ const SocialLoginPresenter: React.SFC<IProps> = ({ loginCallback }) => (
     <Title>Choose an account</Title>
     <BackArrowExtended backTo={"/"} />
     <FacebookLogin
-      appId= "428053544593927"
+      appId="428053544593927"
       autoLoad={false}
       fields="name,first_name,last_name,email"
       callback={loginCallback}
@@ -73,4 +65,4 @@ const SocialLoginPresenter: React.SFC<IProps> = ({ loginCallback }) => (
   </Container>
 );
 
-export default SocialLoginPresenter;
+export default socialLoginPresenter;

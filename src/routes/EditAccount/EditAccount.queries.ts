@@ -1,21 +1,20 @@
 import { gql } from "apollo-boost";
 
-export const FACEBOOK_CONNECT = gql`
-  mutation facebookConnect(
+export const UPDATE_PROFILE = gql`
+  mutation updateProfile(
     $firstName: String!
     $lastName: String!
-    $email: String
-    $fbId: String!
+    $email: String!
+    $profilePhoto: String!
   ) {
-    FacebookConnect(
+    UpdateMyProfile(
       firstName: $firstName
       lastName: $lastName
       email: $email
-      fbId: $fbId
+      profilePhoto: $profilePhoto
     ) {
       ok
       error
-      token
     }
   }
 `;

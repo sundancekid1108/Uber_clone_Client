@@ -1,2 +1,1 @@
-import AddPlaceContainer from "./AddPlaceContainer";
-export default AddPlaceContainer;
+export { default } from "./AddPlaceContainer";

@@ -1,1 +1,1 @@
-export { default } from "./RidePopUp";
+export { default } from './RidePopUp';

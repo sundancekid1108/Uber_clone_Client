@@ -1,7 +1,7 @@
 import { gql } from "apollo-boost";
 
 export const ADD_PLACE = gql`
-  mutation addPlace(
+  mutation addPlace (
     $name: String!
     $lat: Float!
     $lng: Float!

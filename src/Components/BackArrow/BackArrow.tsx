@@ -4,7 +4,7 @@ import styled from "../../typed-components";
 
 const Container = styled.div`
   transform: scale(0.8);
-`;
+`
 
 interface IProps {
   backTo: string;
@@ -14,7 +14,7 @@ interface IProps {
 const BackArrow: React.SFC<IProps> = ({ backTo, className }) => (
   <Container className={className}>
     <Link to={backTo}>
-      <svg
+    <svg
         width="24"
         height="24"
         xmlns="http://www.w3.org/2000/svg"

@@ -1,8 +1,8 @@
+import Header from "components/Header";
+import Place from "components/Place";
 import React from "react";
 import Helmet from "react-helmet";
 import { Link } from "react-router-dom";
-import Header from "../../Components/Header";
-import Place from "../../Components/Place";
 import styled from "../../typed-components";
 import { getPlaces } from "../../types/api";
 
@@ -20,30 +20,30 @@ interface IProps {
 }
 
 const PlacesPresenter: React.SFC<IProps> = ({
-  data: { GetMyPlaces: { places = null } = {} } = {GetMyPlaces:{}},
+  data: { GetMyPlaces: { places = null } = {} } = { GetMyPlaces: {} },
   loading
 }) => (
   <React.Fragment>
     <Helmet>
       <title>Places | Newber</title>
     </Helmet>
-    <Header title={"Places"} backTo={"/"} />
+    <Header title="Places" backTo="/"/>
     <Container>
-      {!loading && places && places.length === 0 && "You have no places"}
       {!loading &&
         places &&
-        places.map(place => (
-          <Place
-            id={place!.id}
-            key={place!.id}
-            fav={place!.isFav}
-            name={place!.name}
-            address={place!.address}
-          />
-        ))}
-        <SLink to={"/add-place"}>Add some places!</SLink>
+        places.length === 0 
+        ? <p>You have no Places</p>
+        : places && places!.map(place => <Place
+          key={place!.id}
+          fav={place!.isFav}
+          name={place!.name}
+          address={place!.address}
+          id={place!.id}
+        />)
+      }
+      <SLink to="/add-place">Place add some places!</SLink>
     </Container>
   </React.Fragment>
-);
+)
 
 export default PlacesPresenter;

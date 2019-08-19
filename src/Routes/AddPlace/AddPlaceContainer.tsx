@@ -4,8 +4,8 @@ import { RouteComponentProps } from "react-router-dom";
 import { toast } from "react-toastify";
 import { GET_PLACES } from "../../sharedQueries.queries";
 import { addPlace, addPlaceVariables } from "../../types/api";
+import { ADD_PLACE } from "./AddPlace.queries";
 import AddPlacePresenter from "./AddPlacePresenter";
-import { ADD_PLACE } from "./AddPlaceQueries.queries";
 
 interface IState {
   address: string;
@@ -49,7 +49,7 @@ class AddPlaceContainer extends React.Component<IProps, IState> {
             toast.success("Place added");
             setTimeout(() => {
               history.push("/places");
-            }, 100);
+            }, 2000);
           } else {
             toast.error(AddPlace.error);
           }

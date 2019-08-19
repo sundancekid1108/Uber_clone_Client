@@ -4,17 +4,16 @@ import styled from "../../typed-components";
 const Container = styled.div``;
 
 const Image = styled.label`
-  cursor: pointer;
-  height: 80px;
-  width: 80px;
-  border: 2px solid black;
-  display: block;
-  border-radius: 50%;
-  margin-bottom: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
+  height: 80px;
+  width: 80px;
+  margin-bottom: 35px;
+  border: 2px solid black;
+  border-radius: 50%;
   font-size: 28px;
+  cursor: pointer;
   overflow: hidden;
   & img {
     width: 80px;
@@ -23,9 +22,9 @@ const Image = styled.label`
 `;
 
 const Input = styled.input`
-  color: white;
-  opacity: 0;
+  visibility: hidden;
   height: 1px;
+  opacity: 0;
   &:focus {
     outline: none;
   }
@@ -33,18 +32,18 @@ const Input = styled.input`
 
 interface IProps {
   uploading: boolean;
-  fileUrl: string;
-  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  photoUrl: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
 }
 
-const PhotoInput: React.SFC<IProps> = ({ uploading, fileUrl, onChange }) => (
+const PhotoInput: React.SFC<IProps> = ({ uploading, photoUrl, onChange }) => (
   <Container>
-    <Input id={"photo"} type="file" accept="image/*" onChange={onChange} />
+    <Input id="photo" type="file" accept="image/*" onChange={onChange}/>
     <Image htmlFor="photo">
       {uploading && "⏰"}
-      {!uploading && <img src={fileUrl} />}
+      {!uploading && <img src={photoUrl}/>}
     </Image>
   </Container>
-);
+)
 
 export default PhotoInput;

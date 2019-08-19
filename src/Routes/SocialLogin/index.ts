@@ -1,2 +1,1 @@
-import SocialLoginContainer from "./SocialLoginContainer";
-export default SocialLoginContainer;
+export { default } from "./SocialLoginContainer";
